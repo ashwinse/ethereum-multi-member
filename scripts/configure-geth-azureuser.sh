@@ -98,8 +98,8 @@ if [ ${#SPECIFIED_GENESIS_BLOCK} -gt 0 ]; then
 	PRIV_KEY=`echo "$SPECIFIED_GENESIS_BLOCK$ADMIN_HASH" | sha256sum | sed s/-// | sed "s/ //"`;
 	printf "%s" $PRIV_KEY > $HOMEDIR/priv_genesis.key;
 	PREFUND_ADDRESS=`geth --datadir $GETH_HOME --password $PASSWD_FILE account import $HOMEDIR/priv_genesis.key | grep -oP '\{\K[^}]+'`;
-	rm $HOMEDIR/priv_genesis.key;
-	rm $PASSWD_FILE;
+	#rm $HOMEDIR/priv_genesis.key;
+	#rm $PASSWD_FILE;
 	cd $HOMEDIR
 else
 	##########################################################################

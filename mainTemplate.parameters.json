@@ -9,7 +9,7 @@
             "value": "Leader"
         },
         "regionCount": {
-            "value": 2
+            "value": 1
         },
         "location_1": {
             "value": "westus"
@@ -60,7 +60,7 @@
             "value": "Standard_LRS"
         },
         "numTXNodesRegion": {
-            "value": 2
+            "value": 1
         },
         "txNodeVMSize": {
             "value": "Standard_A1"
@@ -87,7 +87,7 @@
             "value": ""
         },
         "baseUrl": {
-            "value": "https://raw.githubusercontent.com/sysgain/ethereum-mmmr/master"
+            "value": "https://raw.githubusercontent.com/zhenl-microsoft/ethereum-multi-member/dev-poa"
         }
     }
 }
