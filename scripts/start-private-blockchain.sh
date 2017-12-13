@@ -70,9 +70,12 @@ IPADDR=`hostname -i`;
 ############################
 # Only mine on mining nodes
 ############################
+PASSWD_FILE="$GETH_HOME/passphrase";
+echo "Password value is:$PASSWD"
+printf "%s" $PASSWD > $PASSWD_FILE;
 if [ $NODE_TYPE -ne 0 ]; then
   MINE_OPTIONS="--mine --minerthreads $MINER_THREADS";
-  UNLOCK_OPTIONS="--unlock --password $GETH_HOME/passwd.info";
+  UNLOCK_OPTIONS="--unlock $PREFUND_ADDRESS --password $PASSWD_FILE";
 else
   FAST_SYNC="--fast";
 fi
