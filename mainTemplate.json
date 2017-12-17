@@ -2,17 +2,24 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Resource group location"
+            }
+        },
         "namePrefix": {
             "type": "string",
             "defaultValue": "",
             "metadata": {
-                "description": "String used as a base for naming resources (4 alphanumeric characters or less).  A unique hash is prepended to the string for some resources, while resource-specific information is appended."
+                "description": "String used as a base for naming resources (2 to 4 alphanumeric characters).  A unique hash is prepended to the string for some resources, while resource-specific information is appended."
             },
             "maxLength": 4
         },
         "mode": {
             "type": "string",
-            "defaultValue": "",
+            "defaultValue": "Leader",
             "allowedValues": [
                 "Leader",
                 "Member",
@@ -24,7 +31,7 @@
         },
         "regionCount": {
             "type": "int",
-            "defaultValue": "",
+            "defaultValue": 1,
             "allowedValues": [
                 1,
                 2,
@@ -84,7 +91,7 @@
         },
         "adminUsername": {
             "type": "string",
-            "defaultValue": "gethadmin",
+            "defaultValue": "",
             "metadata": {
                 "description": "Administrator username of each deployed VM (alphanumeric characters only)"
             }
@@ -115,6 +122,7 @@
             "type": "int",
             "minValue": 0,
             "maxValue": 255,
+            "defaultValue" : 0,
             "metadata": {
                 "description": "Unique Identifier for the current member of this consortium."
             }
@@ -135,11 +143,12 @@
         },
         "numMiningNodesRegion": {
             "type": "int",
-            "defaultValue": "",
+            "defaultValue": 1,
             "metadata": {
                 "description": "Number of mining nodes to create for each consortium member."
             },
             "allowedValues": [
+                1,
                 2,
                 3,
                 4,
@@ -155,7 +164,7 @@
                 14,
                 15
             ],
-            "minValue": 2,
+            "minValue": 1,
             "maxValue": 15
         },
         "mnNodeVMSize": {
@@ -178,7 +187,7 @@
         },
         "numTXNodesRegion": {
             "type": "int",
-            "defaultValue": "",
+            "defaultValue": 1,
             "metadata": {
                 "description": "Number of load balanced transaction nodes"
             },
@@ -258,7 +267,7 @@
                 "description": "The base URL for dependent assets",
                 "artifactsBaseUrl": ""
             },
-            "defaultValue": "https://raw.githubusercontent.com/sysgain/ethereum-multi-member/dev"
+            "defaultValue": "https://raw.githubusercontent.com/sysgain/ethereum-multi-member/dev1"
         }
     },
     "variables": {
@@ -343,11 +352,29 @@
             "sku": "16.04.0-LTS",
             "version": "latest"
         },
+        "singleRegion": [
+            {
+                "locationName": "[variables('dbSettings').writeRegionLocation]",
+                "failoverPriority": 0
+            }
+        ],
+        "multiRegion": [
+            {
+                "locationName": "[variables('dbSettings').writeRegionLocation]",
+                "failoverPriority": 0
+            },
+            {
+                "locationName": "[variables('dbSettings').readRegionLocation]",
+                "failoverPriority": 1
+            }
+        ],
         "dbSettings": {
             "dbAccName": "[concat(variables('namingInfix'), '-registrar')]",
             "dbKind": "GlobalDocumentDB",
-            "failoverRegion1": "[resourceGroup().location]"
+            "writeRegionLocation": "[parameters('location_1')]",
+            "readRegionLocation": "[parameters('location_2')]"
         },
+        "multiRegionBool": "[greater(parameters('regionCount'), 1)]",
         "txVmssSettings": {
             "resourceGuid": "[variables('resourceGuid')]",
             "vmssName": "[concat('tx-', variables('namingInfix'))]",
@@ -637,11 +664,13 @@
         "Member3": "1",
         "Member4": "1",
         "Member5": "1",
+
+        "consortiumDataCurrentUrl": "[concat('http://',variables('namingInfix'), '-dns-',variables('suffixArray')[0],'.',variables('locationArray')[0],'.cloudapp.azure.com')]",
         "scriptReqSingle": [
             {
                 "fileUri": "[variables('leaderScriptUrl')]",
                 "filename": "[variables('leaderFilename')]",
-                "consortiumData": "[concat('http://',variables('namingInfix'), '-dns-',variables('suffixArray')[0],'.',variables('locationArray')[0],'.cloudapp.azure.com')]",
+                "consortiumData": "[variables('consortiumDataCurrentUrl')]",
                 "remotePeerInfoEndpoint": "NA",
                 "remotePeerInfoPrimaryKey": "NA",
                 "remotePeerInfoDbName": "NA",
@@ -651,7 +680,7 @@
             {
                 "fileUri": "[variables('memberScriptUrl')]",
                 "filename": "[variables('memberFilename')]",
-                "consortiumData": "[concat('http://',variables('namingInfix'), '-dns-',variables('suffixArray')[0],'.',variables('locationArray')[0],'.cloudapp.azure.com')]",
+                "consortiumData": "[variables('consortiumDataCurrentUrl')]",
                 "remotePeerInfoEndpoint": "NA",
                 "remotePeerInfoPrimaryKey": "NA",
                 "remotePeerInfoDbName": "NA",
@@ -661,7 +690,7 @@
             {
                 "fileUri": "[variables('memberScriptUrl')]",
                 "filename": "[variables('memberFilename')]",
-                "consortiumData": "[concat('http://',variables('namingInfix'), '-dns-',variables('suffixArray')[0],'.',variables('locationArray')[0],'.cloudapp.azure.com')]",
+                "consortiumData": "[variables('consortiumDataCurrentUrl')]",
                 "remotePeerInfoEndpoint": "NA",
                 "remotePeerInfoPrimaryKey": "NA",
                 "remotePeerInfoDbName": "NA",
@@ -671,7 +700,7 @@
             {
                 "fileUri": "[variables('memberScriptUrl')]",
                 "filename": "[variables('memberFilename')]",
-                "consortiumData": "[concat('http://',variables('namingInfix'), '-dns-',variables('suffixArray')[0],'.',variables('locationArray')[0],'.cloudapp.azure.com')]",
+                "consortiumData": "[variables('consortiumDataCurrentUrl')]",
                 "remotePeerInfoEndpoint": "NA",
                 "remotePeerInfoPrimaryKey": "NA",
                 "remotePeerInfoDbName": "NA",
@@ -681,7 +710,7 @@
             {
                 "fileUri": "[variables('memberScriptUrl')]",
                 "filename": "[variables('memberFilename')]",
-                "consortiumData": "[concat('http://',variables('namingInfix'), '-dns-',variables('suffixArray')[0],'.',variables('locationArray')[0],'.cloudapp.azure.com')]",
+                "consortiumData": "[variables('consortiumDataCurrentUrl')]",
                 "remotePeerInfoEndpoint": "NA",
                 "remotePeerInfoPrimaryKey": "NA",
                 "remotePeerInfoDbName": "NA",
@@ -693,7 +722,7 @@
             {
                 "fileUri": "[variables('leaderScriptUrl')]",
                 "filename": "[variables('leaderFilename')]",
-                "consortiumData": "[concat('http://',variables('namingInfix'), '-dns-',variables('suffixArray')[0],'.',variables('locationArray')[0],'.cloudapp.azure.com')]",
+                "consortiumData": "[variables('consortiumDataCurrentUrl')]",
                 "remotePeerInfoEndpoint": "NA",
                 "remotePeerInfoPrimaryKey": "NA",
                 "remotePeerInfoDbName": "NA",
@@ -703,7 +732,7 @@
             {
                 "fileUri": "[variables('memberScriptUrl')]",
                 "filename": "[variables('memberFilename')]",
-                "consortiumData": "[concat('http://',variables('namingInfix'), '-dns-',variables('suffixArray')[0],'.',variables('locationArray')[0],'.cloudapp.azure.com')]",
+                "consortiumData": "[variables('consortiumDataCurrentUrl')]",
                 "remotePeerInfoEndpoint": "NA",
                 "remotePeerInfoPrimaryKey": "NA",
                 "remotePeerInfoDbName": "NA",
@@ -713,7 +742,7 @@
             {
                 "fileUri": "[variables('memberScriptUrl')]",
                 "filename": "[variables('memberFilename')]",
-                "consortiumData": "[concat('http://',variables('namingInfix'), '-dns-',variables('suffixArray')[0],'.',variables('locationArray')[0],'.cloudapp.azure.com')]",
+                "consortiumData": "[variables('consortiumDataCurrentUrl')]",
                 "remotePeerInfoEndpoint": "NA",
                 "remotePeerInfoPrimaryKey": "NA",
                 "remotePeerInfoDbName": "NA",
@@ -723,7 +752,7 @@
             {
                 "fileUri": "[variables('memberScriptUrl')]",
                 "filename": "[variables('memberFilename')]",
-                "consortiumData": "[concat('http://',variables('namingInfix'), '-dns-',variables('suffixArray')[0],'.',variables('locationArray')[0],'.cloudapp.azure.com')]",
+                "consortiumData": "[variables('consortiumDataCurrentUrl')]",
                 "remotePeerInfoEndpoint": "NA",
                 "remotePeerInfoPrimaryKey": "NA",
                 "remotePeerInfoDbName": "NA",
@@ -733,7 +762,7 @@
             {
                 "fileUri": "[variables('memberScriptUrl')]",
                 "filename": "[variables('memberFilename')]",
-                "consortiumData": "[concat('http://',variables('namingInfix'), '-dns-',variables('suffixArray')[0],'.',variables('locationArray')[0],'.cloudapp.azure.com')]",
+                "consortiumData": "[variables('consortiumDataCurrentUrl')]",
                 "remotePeerInfoEndpoint": "NA",
                 "remotePeerInfoPrimaryKey": "NA",
                 "remotePeerInfoDbName": "NA",
@@ -797,11 +826,11 @@
         "gatewayIdRegion1Leader": "[concat(resourceGroup().id,'/providers/Microsoft.Network/virtualNetworkGateways/',variables('namingInfix'),'-gateway-',variables('suffixArray')[0])]",
         "gatewayIdRegion1Member": "[concat(resourceGroup().id,'/providers/Microsoft.Network/virtualNetworkGateways/',variables('namingInfix'),'-gateway-',variables('suffixArray')[0])]",
         "pairGatewayPsModuleSingle": "NA",
-        "pairGatewayPsModuleLeader": "[concat('http://',variables('namingInfix'), '-dns-',variables('suffixArray')[0],'.',variables('locationArray')[0],'.cloudapp.azure.com/ConsortiumBridge.psm1')]",
-        "pairGatewayPsModuleMember": "[concat('http://',variables('namingInfix'), '-dns-',variables('suffixArray')[0],'.',variables('locationArray')[0],'.cloudapp.azure.com/ConsortiumBridge.psm1')]",
+        "pairGatewayPsModuleLeader": "[concat(variables('consortiumDataCurrentUrl'),'/ConsortiumBridge.psm1')]",
+        "pairGatewayPsModuleMember": "[concat(variables('consortiumDataCurrentUrl'),'/ConsortiumBridge.psm1')]",
         "pairGatewayAzureCliScriptSingle": "NA",
-        "pairGatewayAzureCliScriptLeader": "[concat('http://',variables('namingInfix'), '-dns-',variables('suffixArray')[0],'.',variables('locationArray')[0],'.cloudapp.azure.com/ConsortiumBridge.sh')]",
-        "pairGatewayAzureCliScriptMember": "[concat('http://',variables('namingInfix'), '-dns-',variables('suffixArray')[0],'.',variables('locationArray')[0],'.cloudapp.azure.com/ConsortiumBridge.sh')]"
+        "pairGatewayAzureCliScriptLeader": "[concat(variables('consortiumDataCurrentUrl'),'/ConsortiumBridge.sh')]",
+        "pairGatewayAzureCliScriptMember": "[concat(variables('consortiumDataCurrentUrl'),'/ConsortiumBridge.sh')]"
     },
     "resources": [
         {
@@ -820,14 +849,9 @@
                     "maxIntervalInSeconds": 5,
                     "maxStalenessPrefix": 100
                 },
-                "locations": [
-                    {
-                        "locationName": "[variables('dbSettings').failoverRegion1]",
-                        "failoverPriority": 0
-                    }
-                ],
+                "locations": "[if(variables('multiRegionBool'), variables('multiRegion'), variables('singleRegion'))]",
                 "databaseAccountOfferType": "Standard",
-                "enableAutomaticFailover": true
+                "enableAutomaticFailover": "[variables('multiRegionBool')]"
             }
         },
         {

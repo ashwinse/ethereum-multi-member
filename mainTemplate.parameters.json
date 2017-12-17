@@ -2,6 +2,9 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "location": {
+            "value": "eastus"
+        },
         "namePrefix": {
             "value": "eth"
         },
@@ -9,7 +12,7 @@
             "value": "Leader"
         },
         "regionCount": {
-            "value": 1
+            "value": 2
         },
         "location_1": {
             "value": "westus"
@@ -51,7 +54,7 @@
             "value": "Ashpassword123"
         },
         "numMiningNodesRegion": {
-            "value": 2
+            "value": 1
         },
         "mnNodeVMSize": {
             "value": "Standard_A1"
@@ -60,7 +63,7 @@
             "value": "Standard_LRS"
         },
         "numTXNodesRegion": {
-            "value": 1
+            "value": 2
         },
         "txNodeVMSize": {
             "value": "Standard_A1"
@@ -87,7 +90,7 @@
             "value": ""
         },
         "baseUrl": {
-            "value": "https://raw.githubusercontent.com/zhenl-microsoft/ethereum-multi-member/dev-poa"
+            "value": "https://raw.githubusercontent.com/sysgain/ethereum-multi-member/dev1"
         }
     }
 }
